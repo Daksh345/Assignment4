@@ -3,7 +3,15 @@ This program acts as a loader and runtime environment for a 32-bit ELF executabl
 Ehdr and Phdr are pointers to the ELF and program headers. Fd is the file descriptor for the ELF file. 
 Fd – file descriptor
 virtual_mem - Pointer to the memory mapped for execution
-Free_space() - frees the allocated space.
+loader_cleanup()- frees the allocated space.
+check_file_read() - Check if the ELF file can be opened for reading
+check_offset() - Check if offset seeking was successful
+load_phdr() - Load program headers into memory
+load_ehdr() - Load ELF header into memory and perform necessary checks
+SIGSEGV_handler - Segmentation fault is caught and resolved. 
+add_fragmentation() - adds the fragements of memory not needed.
+setup_signal_handler() - sets up signal handler.
+load_and_run_elf() - loads and executes the ELF files
 
 A signal handler for segmentation faults (SIGSEGV) is made. This is critical because the program relies on handling faults to allocate memory for segments only when they are accessed, implementing a demand-paging approach.
 
@@ -14,3 +22,8 @@ A function pointer (_start) is then set up to point to this entry address, allow
 When the ELF program begins executing via _start, it may attempt to access sections of memory that haven’t been allocated yet, which would trigger a SIGSEGV (segmentation fault). The segmentation fault triggers the custom signal handler, which maps a new page of memory at the faulting address using mmap. The program then reads data for this segment from the ELF file into this memory region, making it accessible for execution.
 After execution completes, it prints these statistics to provide insight into memory usage and efficiency.
 Once the ELF program finishes running, the loader performs cleanup: it frees allocated memory, unmaps any mapped pages, and closes the file.
+
+Contribution - 
+Karan singh - Ideation, code implementation, readme, code management
+Daksh Gupta - Ideation, code implementation, readme, code management
+
