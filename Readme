@@ -1,0 +1,16 @@
+This program acts as a loader and runtime environment for a 32-bit ELF executable, handling memory mapping dynamically as the program runs. It mimics a simplified operating system loader that performs on-demand paging by catching segmentation faults and allocating memory only when needed. This setup provides a minimal environment for executing ELF binaries directly from a file, with memory usage details provided as a post-execution report.
+
+Ehdr and Phdr are pointers to the ELF and program headers. Fd is the file descriptor for the ELF file. 
+Fd – file descriptor
+virtual_mem - Pointer to the memory mapped for execution
+Free_space() - frees the allocated space.
+
+A signal handler for segmentation faults (SIGSEGV) is made. This is critical because the program relies on handling faults to allocate memory for segments only when they are accessed, implementing a demand-paging approach.
+
+The program verifies that the specified ELF file can be opened and is readable. This check ensures that the program doesn’t proceed with an invalid or inaccessible file
+
+The ELF header (ehdr) and program headers (phdr) are loaded into memory. These headers contain data about the ELF file, including the type of file, entry point, and memory layout of its sections. 
+A function pointer (_start) is then set up to point to this entry address, allowing the loader to invoke the program’s starting function as if it were a regular function in the program.
+When the ELF program begins executing via _start, it may attempt to access sections of memory that haven’t been allocated yet, which would trigger a SIGSEGV (segmentation fault). The segmentation fault triggers the custom signal handler, which maps a new page of memory at the faulting address using mmap. The program then reads data for this segment from the ELF file into this memory region, making it accessible for execution.
+After execution completes, it prints these statistics to provide insight into memory usage and efficiency.
+Once the ELF program finishes running, the loader performs cleanup: it frees allocated memory, unmaps any mapped pages, and closes the file.
